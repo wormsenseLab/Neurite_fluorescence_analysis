@@ -43,23 +43,27 @@ Do not straighten images with the following issues:
 
 PUNCTA ANALYSIS: 
 
+Download all the files and directories in the repository.
+
+Modify the strain_key.xlsx file to add details of the strain(s) to be analyzed and save it.
+
 Run script Neurite_fluorescence_analysis.py.
 
 The algorithm will ask for the following user inputs:
 
 -- Select strain_key spreadsheet file (Select the "strain_key.xlsx" file in the pop-up File dialog box)
 
--- Select destination folder for saving analysis files (Select the "Analysis" directory in the pop-up File dialog box)
+-- Select destination folder for saving analysis files (Select the "sample_output" directory in the pop-up File dialog box for a demo run)
 
--- Select folder where straightened images are stored (Select the "sample_data" directory in the pop-up File dialog box)
+-- Select folder where straightened images are stored (Select the "sample_data" directory in the pop-up File dialog box for demo output)
 
--- Camera pixel width (Enter the value in microns in the console window)
+-- Camera pixel width (Enter the value in microns in the console window: for sample data the value is 7.54)
 
--- Objective magnification (Enter the value used in the console window)
+-- Objective magnification (Enter the value used in the console window: 60x for sample data)
 
--- Age of worms (Enter the age description in the console window)
+-- Age of worms (Enter the age description in the console window: Adult for sample data)
 
--- Neuron (Enter the neuron name in the console window)
+-- Neuron (Enter the neuron name in the console window: ALM for sample data)
 
 The algorithm will create a new folder with current timestamp within the destination folder to save all output from the current run.
 
