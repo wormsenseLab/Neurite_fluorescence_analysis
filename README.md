@@ -11,16 +11,16 @@ DATA COLLECTION:
 Only image the neuron closest to the cover slip. 
 
 FILE NAMING:
-Group folder name: yyyymmdd_Strain_xx \n
-File prefix: yyyymmdd_Strain \n
+Group folder name: yyyymmdd_Strain_xx
+File prefix: yyyymmdd_Strain
 Stitched file name: yyyymmdd_Strain_xx
 
 IMAGE PRE-PROCESSING: 
 Open image in Fiji/ImageJ. Stitched files are rotated to orient anterior end towards the RIGHT unless there are multiple worms in the frame. To distinguish between ALML/R, look for alae position relative to ALM. If alae is below TRN then ALML, otherwise ALMR. In case of ALMR, often the AVM cell body is also visible. Trace neuron using segmented line tool. Use spline fit. Always trace starting from cell body moving towards distal end. Save ROIs. Press spacebar to switch to hand mode for easy scrolling through zoomed image. Check to make sure every part of the segmented line aligns well with the neuron. Before straightening make sure to reset brightness and contrast levels. Line width for straightening: 20 px. Save straightened image. Straightened file name: yyyymmdd_Strain_xx-x Every straightened image should be easily traceable to its raw image file.
 
-QUALITY CONTROL: Do not straighten images with the following issues (trace neuron and save ROI): \n
--- Puncta out of focus \n
--- Movement of worm during acquisition \n
+QUALITY CONTROL: Do not straighten images with the following issues (trace neuron and save ROI):
+-- Puncta out of focus
+-- Movement of worm during acquisition
 -- Improper stitching
 
 PUNCTA ANALYSIS: 
