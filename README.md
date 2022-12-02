@@ -45,7 +45,7 @@ PUNCTA ANALYSIS:
 
 Download all the files and directories in the repository.
 
-Modify the strain_key.xlsx file to add details of the strain(s) to be analyzed and save it.
+Modify the strain_key.xlsx file to add details of the strain(s) to be analyzed (if it is not already present) and save it. The spreadsheet is pre-populated with the details of all the strains imaged and analyzed in the manuscript. To add a new entry, please follow the structure and syntax for each field closely to avoid errors. 
 
 Run script Neurite_fluorescence_analysis.py.
 
