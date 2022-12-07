@@ -75,6 +75,23 @@ def neurite_fluorescence(img,label,binning):
     return(fnf_1, bsf, fnf)
 
 
+def height_cutoff(label,fnf):
+    if label=='mNG::MEC-4':
+        avnoise=percentile_filter(fnf,50,500)
+        stdnoise=np.std(fnf[fnf<np.percentile(fnf,25)])
+        height=avnoise+10*stdnoise
+    elif label=='mCh::RAB-3':
+        avnoise=np.mean(fnf[fnf<np.percentile(fnf,90)])
+        stdnoise=np.std(fnf[fnf<np.percentile(fnf,50)])
+        height=np.array([avnoise+10*stdnoise]*imsize)
+    else:
+        avnoise=np.mean(fnf[fnf<np.percentile(fnf,75)])
+        stdnoise=np.std(fnf[fnf<np.percentile(fnf,50)])
+        height=np.array([avnoise+5*stdnoise]*imsize)
+    prominence=0.2*height
+    return(height,prominence)
+
+    
 def peakfinder(fnf, height, prominence, nf, dist):  
     peaks = find_peaks(fnf, height=height, prominence=prominence)[0]
     pmi = [fnf[i] for i in peaks]
@@ -151,7 +168,7 @@ def corr_coeffs(rawG, rawR):
     return(icq, pearson)
 
 
-def plot_traces_data(x,label,imsize,dist,nf,bsf,avnoise,df,pd,pmi_nf,height):
+def plot_traces_data(x,label,imsize,dist,nf,bsf,df,pd,pmi_nf,height):
     plt.figure(1, figsize=(0.010*imsize,8))
     plt.rcParams.update({'font.size': 30})
     plt.rcParams['svg.fonttype'] = 'none'
@@ -164,7 +181,6 @@ def plot_traces_data(x,label,imsize,dist,nf,bsf,avnoise,df,pd,pmi_nf,height):
     plt.plot(pd, pmi_nf, 'go')
     if label=='mNG::MEC-4': 
         plt.plot(dist, df,'k-')
-        plt.plot(dist, bsf+avnoise,'r-')
     if label=='LAM-1::wSc' or label=='LAM-2::mNG':
         plt.axis([0, dist[-1], 0, 30])
     else:
@@ -174,7 +190,7 @@ def plot_traces_data(x,label,imsize,dist,nf,bsf,avnoise,df,pd,pmi_nf,height):
     sns.set_style('ticks', {'xtick.direction': 'in', 'ytick.direction': 'in'})
     sns.despine(offset=5, trim=False)
 
-    plt.savefig(dfpath+timestamp+'/individual_traces/'+x[:-4]+'_'+label.replace('::','_')+'.svg')
+    plt.savefig(dfpath+timestamp+'/individual_traces/'+x[:-4]+'_'+label.replace('::','_')+'.png')
     
     plt.show()
     plt.close()
@@ -226,7 +242,7 @@ def plot_coloc(apG,apR):
     sns.set_style('ticks', {'xtick.direction': 'in', 'ytick.direction': 'in'})
     sns.despine(offset=20, trim=False)
 
-    plt.savefig(dfpath+timestamp+'/individual_traces/'+x+'_coloc.svg')
+    plt.savefig(dfpath+timestamp+'/individual_traces/'+x+'_coloc.png')
     plt.show()
     plt.close()
 
@@ -296,34 +312,19 @@ for x in imgfiles:                          #create loop for number of images in
     normdist=d/d[-1]
 
     if channel=='red;green':      
-        
         labelR=label.split(';')[0]
         imgR=img[:,:,0]
         nfR, bsfR, fnfR = neurite_fluorescence(imgR,labelR,binning)
-        if labelR=='mCh::RAB-3':
-            avnoise=np.mean(fnfR[fnfR<np.percentile(fnfR,90)])
-            stdnoise=np.std(fnfR[fnfR<np.percentile(fnfR,50)])
-            heightR=np.array([avnoise+10*stdnoise]*imsize)
-            prominenceR=0.2*heightR
-        else:
-            avnoise=np.mean(fnfR[fnfR<np.percentile(fnfR,75)])
-            stdnoise=np.std(fnfR[fnfR<np.percentile(fnfR,50)])
-            heightR=np.array([avnoise+5*stdnoise]*imsize)
-            prominenceR=0.2*heightR
+        heightR,prominenceR=height_cutoff(labelR,fnfR)
         dfR, pfR, peaksR, pdR, pndR, pmiR, pmi_nfR, ipdR, ipddR, ipdndR, pwR = peakfinder(fnfR, heightR, prominenceR, nfR, dist)
-        plot_traces_data(x,labelR,imsize,dist,nfR,bsfR,avnoise,dfR,pdR,pmi_nfR,heightR)
+        plot_traces_data(x,labelR,imsize,dist,nfR,bsfR,dfR,pdR,pmi_nfR,heightR)
         
         labelG=label.split(';')[1]
         imgG=img[:,:,1]
         nfG, bsfG, fnfG = neurite_fluorescence(imgG,labelG,binning)
-        
-        avnoise=percentile_filter(fnfG,50,500)
-        stdnoise=np.std(fnfG[fnfG<np.percentile(fnfG,25)])
-        heightG=avnoise+10*stdnoise
-        prominenceG=0.2*heightG
-        
+        heightG,prominenceG=height_cutoff(labelG,fnfG)
         dfG, pfG, peaksG, pdG, pndG, pmiG, pmi_nfG, ipdG, ipddG, ipdndG, pwG = peakfinder(fnfG, heightG, prominenceG, nfG, dist)
-        plot_traces_data(x,labelG,imsize,dist,nfG,bsfG,avnoise,dfG,pdG,pmi_nfG,heightG)
+        plot_traces_data(x,labelG,imsize,dist,nfG,bsfG,dfG,pdG,pmi_nfG,heightG)
         
         colocRG, nRG = colocalization(peaksR,peaksG,binning)
         colocGR, nGR = colocalization(peaksG,peaksR,binning)        
@@ -345,7 +346,6 @@ for x in imgfiles:                          #create loop for number of images in
             ncfG[indices3]=0
         cfG = pfG-ncfG
         
-        
         if label=='mCh::RAB-3;mNG::MEC-4':
             frame1 = pandas.DataFrame({'Date':[date]*imsize, 'Strain':[strain]*imsize, 'Allele':[allele]*imsize, 'Label':[label]*imsize, 'Neuron':[neuron]*imsize, 'ImageID':[x]*imsize, 'Age':[age]*imsize, 'Distance':dist, 'Normalized distance':normdist, 'Neurite intensity':nfG, 'Diffuse fluorescence':dfG, 'Vesicle fluorescence':cfG, 'Non-vesicle puncta fluorescence':ncfG},
                                      columns=cols_fluortypes)
@@ -356,9 +356,7 @@ for x in imgfiles:                          #create loop for number of images in
             frame2 = pandas.DataFrame([[date, strain, allele, label, neuron, x, age, len(pdG), len(pdR), nGR, nRG, frac_GR, frac_RG, np.sum(nfG), np.sum(dfG), np.sum(ncfG), np.sum(cfG)]], columns=cols_Coloc)
 
         df_fluortypes = df_fluortypes.append(frame1)
-
         df_Coloc = df_Coloc.append(frame2)
-        
         plot_coloc(apG,apR)
         
         #compute ICQ
@@ -377,30 +375,20 @@ for x in imgfiles:                          #create loop for number of images in
         df_ICQ = df_ICQ.append(frame3)
         continue
     
-    if label=='mNG::MEC-4':
-
-        img=img[:,:,1]
-        nf, bsf, fnf = neurite_fluorescence(img,label,binning)
+    else:
+        if channel=='red':
+            img=img[:,:,0]
+        elif channel=='green':
+            img=img[:,:,1]
+        elif channel=='monochrome':
+            img=img
         
-        avnoise=percentile_filter(fnf,50,500)
-        stdnoise=np.std(fnf[fnf<np.percentile(fnf,25)])
-        height=avnoise+10*stdnoise
-        prominence=0.2*height
+        nf, bsf, fnf = neurite_fluorescence(img,label,binning)
+        height,prominence=height_cutoff(label,fnf)
         df, pf, peaks, pd, pnd, pmi, pmi_nf, ipd, ipdd, ipdnd, pw = peakfinder(fnf, height, prominence, nf, dist)
-        plot_traces_data(x,label,imsize,dist,nf,bsf,avnoise,df,pd,pmi_nf,height)
+        plot_traces_data(x,label,imsize,dist,nf,bsf,df,pd,pmi_nf,height)
         ap, df_Data,df_Peaks,df_IPDs,df_Analysis=add_data_to_dataframe(date,strain,allele,label,neuron,x,objective,age,imsize,dist,normdist,nf,df,pf,fnf,height,peaks,pd,pnd,pmi_nf,pw,'N/A',ipdd,ipdnd,ipd,df_Data,df_Peaks,df_IPDs,df_Analysis)
         continue
-    
-    else: 
-        nf, bsf, fnf = neurite_fluorescence(img,label,binning)
-        avnoise=np.mean(fnf[fnf<np.percentile(fnf,75)])
-        stdnoise=np.std(fnf[fnf<np.percentile(fnf,50)])
-        height=np.array([avnoise+5*stdnoise]*imsize)
-        prominence=0.2*height
-
-        df, pf, peaks, pd, pnd, pmi, pmi_nf, ipd, ipdd, ipdnd, pw = peakfinder(fnf, height, prominence, nf, dist)
-        plot_traces_data(x,label,imsize,dist,nf,bsf,avnoise,df,pd,pmi_nf,height)
-        ap, df_Data,df_Peaks,df_IPDs,df_Analysis=add_data_to_dataframe(date,strain,allele,label,neuron,x,objective,age,imsize,dist,normdist,nf,df,pf,fnf,height,peaks,pd,pnd,pmi_nf,pw,'N/A',ipdd,ipdnd,ipd,df_Data,df_Peaks,df_IPDs,df_Analysis)
         
 toc = time.perf_counter()
 print(f"Completed Peak finding in {toc-tic:0.4f} seconds")
@@ -433,5 +421,3 @@ df_fluortypes.to_pickle(dfpath+timestamp+'/'+timestamp+'_Fluortypes.pkl')
 df_Coloc.to_pickle(dfpath+timestamp+'/'+timestamp+'_Coloc.pkl')
 df_ICQ.to_pickle(dfpath+timestamp+'/'+timestamp+'_ICQ.pkl')
 strain_key.to_pickle(dfpath+'strain_key.pkl')
-
-
