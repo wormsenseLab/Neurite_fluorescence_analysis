@@ -75,6 +75,8 @@ The algorithm will ask for the following user inputs:
 
 The algorithm will create a new folder with current timestamp within the destination folder to save all output from the current run.
 
-The algorithm will output traces of each neuron, with puncta identified as green dots. Verify visually if peaks are appropriately identified. These images are also saved as .svg files within a subdiredctory called "individual_traces".
+The algorithm will output traces of each neuron, with puncta identified as green dots. Verify visually if peaks are appropriately identified. These images are also saved as .png files within a subdiredctory called "individual_traces".
 
 The algorithm will output all the relevant dataframes as .pkl files. For all further analysis and plotting, read these .pkl in pandas and extract data as needed.
+
+For more details about the code read the Wiki pages linked to this repository.
