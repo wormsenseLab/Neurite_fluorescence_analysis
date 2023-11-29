@@ -1,3 +1,5 @@
+https://zenodo.org/doi/10.5281/zenodo.10223538
+
 # Neurite_fluorescence_analysis
 Comprehensive script for measuring fluorescence intensity in diffuse and punctate pools, inter-punctum intervals (IPI), puncta colocalization, intensity correlation quotient (ICQ) in neurites.
 
